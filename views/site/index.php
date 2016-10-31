@@ -1,52 +1,48 @@
 <?php
 
-/* @var $this yii\web\View */
+use yii\helpers\Html;
+use yii\web\View;
+
+/* @var $this View */
 
 $this->title = 'My Yii Application';
 ?>
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Congratulations!</h1>
+        <h1><?= Yii::t('app', 'Welcome to Conews!') ?></h1>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
+        <p class="lead"><?= Yii::t('app', 'Conews is a news portal where you can report or read news.') ?></p>
 
-        <p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>
+        <p><a class="btn btn-lg btn-success" href="/site/signup">Get started with Conews!</a></p>
     </div>
 
     <div class="body-content">
 
+        <?php if (!count($posts)) { ?>
+            <div class="row">
+                Nobody posted any news yet. 
+            </div>
+        <?php } ?>
+
         <div class="row">
-            <div class="col-lg-4">
-                <h2>Heading</h2>
+            <?php foreach ($posts as $key => $post) { ?>
+                <?php if ($key % 3 == 0) { ?>
+                    </div>
+                    <div class="row">
+                <?php } ?>
+            
+                <div class="col-lg-4">
+                    <h2><?= $post->title ?></h2>
 
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
+                    <p><?= $post->image ?></p>
+                    <p><?= yii\helpers\StringHelper::truncateWords($post->content, 50) ?></p>
 
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/doc/">Yii Documentation &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/forum/">Yii Forum &raquo;</a></p>
-            </div>
-            <div class="col-lg-4">
-                <h2>Heading</h2>
-
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
-                    dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                    ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                    fugiat nulla pariatur.</p>
-
-                <p><a class="btn btn-default" href="http://www.yiiframework.com/extensions/">Yii Extensions &raquo;</a></p>
-            </div>
+                    <p>
+                        <?= Html::a(Yii::t('app', 'More &raquo;'), ['post/view', 'id' => $post->id], ['class' => 'btn btn-default']) ?>
+                    </p>
+                </div>
+            <?php } ?>
         </div>
 
     </div>

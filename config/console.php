@@ -1,6 +1,7 @@
 <?php
 
 $params = require(__DIR__ . '/params.php');
+$params = require(__DIR__ . '/aliases.php');
 $db = require(__DIR__ . '/db.php');
 
 $config = [
@@ -21,6 +22,18 @@ $config = [
             ],
         ],
         'db' => $db,
+        'language' => 'en-US',
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                ],
+            ],
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
     ],
     'params' => $params,
     /*

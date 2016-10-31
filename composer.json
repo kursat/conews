@@ -17,7 +17,11 @@
         "php": ">=5.4.0",
         "yiisoft/yii2": "~2.0.5",
         "yiisoft/yii2-bootstrap": "~2.0.0",
-        "yiisoft/yii2-swiftmailer": "~2.0.0"
+        "yiisoft/yii2-swiftmailer": "~2.0.0",
+        "zyx/zyx-phpmailer": "@stable",
+        "zelenin/yii2-rss": "~0.1",
+        "kartik-v/yii2-grid": "^3.1",
+        "kartik-v/yii2-mpdf": "^1.0"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",
@@ -31,9 +35,20 @@
     "config": {
         "process-timeout": 1800
     },
+    "autoload": {
+        "psr-0": {
+            "scripts\\Installer": ""
+        }
+    },
     "scripts": {
         "post-create-project-cmd": [
             "yii\\composer\\Installer::postCreateProject"
+        ],
+        "post-install-cmd": [
+            "scripts\\Installer::postInstall"
+        ],
+        "post-update-cmd": [
+            "scripts\\Installer::postUpdate"
         ]
     },
     "extra": {
@@ -42,7 +57,8 @@
                 {
                     "runtime": "0777",
                     "web/assets": "0777",
-                    "yii": "0755"
+                    "yii": "0755",
+                    "web/user_images": "0777"
                 }
             ],
             "generateCookieValidationKey": [

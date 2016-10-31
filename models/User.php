@@ -2,103 +2,281 @@
 
 namespace app\models;
 
-class User extends \yii\base\Object implements \yii\web\IdentityInterface
-{
-    public $id;
-    public $username;
-    public $password;
-    public $authKey;
-    public $accessToken;
+use Yii;
+use yii\base\NotSupportedException;
+use yii\behaviors\BlameableBehavior;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveQuery;
+use yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
 
-    private static $users = [
-        '100' => [
-            'id' => '100',
-            'username' => 'admin',
-            'password' => 'admin',
-            'authKey' => 'test100key',
-            'accessToken' => '100-token',
-        ],
-        '101' => [
-            'id' => '101',
-            'username' => 'demo',
-            'password' => 'demo',
-            'authKey' => 'test101key',
-            'accessToken' => '101-token',
-        ],
-    ];
+/**
+ * User model
+ *
+ * @property integer $id
+ * @property string $password_hash
+ * @property string $password_reset_token
+ * @property string $email
+ * @property string $auth_key
+ * @property integer $status
+ * @property integer $created_at
+ * @property integer $updated_at
+ * @property string $password write-only password
+ */
+class User extends ActiveRecord implements IdentityInterface {
 
+    public $form_password;
+
+    const STATUS_PASSIVE = 0;
+    const STATUS_ACTIVE = 10;
 
     /**
      * @inheritdoc
      */
-    public static function findIdentity($id)
-    {
-        return isset(self::$users[$id]) ? new static(self::$users[$id]) : null;
+    public function behaviors() {
+        return [
+            TimestampBehavior::className(),
+            BlameableBehavior::className()
+        ];
     }
 
     /**
      * @inheritdoc
      */
-    public static function findIdentityByAccessToken($token, $type = null)
-    {
-        foreach (self::$users as $user) {
-            if ($user['accessToken'] === $token) {
-                return new static($user);
-            }
-        }
-
-        return null;
+    public static function tableName() {
+        return '{{%user}}';
     }
 
     /**
-     * Finds user by username
+     * @inheritdoc
+     */
+    public function rules() {
+        return [
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_PASSIVE]],
+            [['auth_key', 'password_hash', 'email'], 'required'],
+            [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['password_hash', 'password_reset_token', 'email', 'firstname', 'lastname'], 'string', 'max' => 255],
+            [['auth_key'], 'string', 'max' => 32],
+            [['email'], 'unique'],
+            [['password_reset_token'], 'unique'],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels() {
+        return [
+            'id' => Yii::t('user', 'ID'),
+            'firstname' => Yii::t('user', 'Name'),
+            'lastname' => Yii::t('user', 'Surname'),
+            'form_password' => Yii::t('user', 'Password'),
+            'auth_key' => Yii::t('user', 'Auth Key'),
+            'password_hash' => Yii::t('user', 'Password Hash'),
+            'password_reset_token' => Yii::t('user', 'Password Reset Token'),
+            'email' => Yii::t('user', 'Email'),
+            'status' => Yii::t('app', 'Status'),
+            'created_at' => Yii::t('app', 'Created At'),
+            'updated_at' => Yii::t('app', 'Updated At'),
+            'created_by' => Yii::t('app', 'Created By'),
+            'updated_by' => Yii::t('app', 'Updated By'),
+            'authItems' => Yii::t('user', 'Auth Items'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentity($id) {
+        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null) {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+
+    /**
+     * Finds user by email
      *
-     * @param string $username
+     * @param string $email
      * @return static|null
      */
-    public static function findByUsername($username)
-    {
-        foreach (self::$users as $user) {
-            if (strcasecmp($user['username'], $username) === 0) {
-                return new static($user);
-            }
+    public static function findByEmail($email) {
+        return static::findOne(['email' => $email, 'status' => self::STATUS_ACTIVE]);
+    }
+
+    /**
+     * Finds user by password reset token
+     *
+     * @param string $token password reset token
+     * @return static|null
+     */
+    public static function findByPasswordResetToken($token) {
+        if (!static::isPasswordResetTokenValid($token)) {
+            return null;
         }
 
-        return null;
+        return static::findOne([
+                    'password_reset_token' => $token,
+                    'status' => self::STATUS_ACTIVE,
+        ]);
+    }
+
+    /**
+     * Finds out if password reset token is valid
+     *
+     * @param string $token password reset token
+     * @return boolean
+     */
+    public static function isPasswordResetTokenValid($token) {
+        if (empty($token)) {
+            return false;
+        }
+
+        $timestamp = (int) substr($token, strrpos($token, '_') + 1);
+        $expire = Yii::$app->params['user.passwordResetTokenExpire'];
+        return $timestamp + $expire >= time();
     }
 
     /**
      * @inheritdoc
      */
-    public function getId()
-    {
-        return $this->id;
+    public function getId() {
+        return $this->getPrimaryKey();
     }
 
     /**
      * @inheritdoc
      */
-    public function getAuthKey()
-    {
-        return $this->authKey;
+    public function getAuthKey() {
+        return $this->auth_key;
     }
 
     /**
      * @inheritdoc
      */
-    public function validateAuthKey($authKey)
-    {
-        return $this->authKey === $authKey;
+    public function validateAuthKey($authKey) {
+        return $this->getAuthKey() === $authKey;
     }
 
     /**
      * Validates password
      *
      * @param string $password password to validate
-     * @return bool if password provided is valid for current user
+     * @return boolean if password provided is valid for current user
      */
-    public function validatePassword($password)
-    {
-        return $this->password === $password;
+    public function validatePassword($password) {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
     }
+
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPassword($password) {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+
+    /**
+     * Generates "remember me" authentication key
+     */
+    public function generateAuthKey() {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+
+    /**
+     * Generates new password reset token
+     */
+    public function generatePasswordResetToken() {
+        $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
+    }
+
+    /**
+     * Removes password reset token
+     */
+    public function removePasswordResetToken() {
+        $this->password_reset_token = null;
+    }
+
+    public function getProfileImage() {
+
+        $default = "http://claimmyrun.com/static/img/default-avatar-160.png";
+        $size = 160;
+
+        $gravatar_image_url = "http://www.gravatar.com/avatar/" .
+                md5(strtolower(trim($this->email))) .
+                "?d=" . urlencode($default) .
+                "&s=" . $size;
+
+        return $gravatar_image_url;
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getAuthItems() {
+        return $this->hasMany(AuthItem::className(), ['name' => 'item_name'])
+                        ->via('authItemLinks');
+    }
+
+    public function getAuthItemLinks() {
+        return $this->hasMany(AuthAssignment::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getClassrooms() {
+        return $this->hasMany(Classroom::className(), ['id' => 'classroom_id'])
+                        ->via('classroomLinks');
+    }
+
+    public function getClassroomLinks() {
+        return $this->hasMany(ClassroomUser::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getSchools() {
+        return $this->hasMany(School::className(), ['id' => 'school_id'])
+                        ->via('schoolLinks');
+    }
+
+    public function getSchoolLinks() {
+        return $this->hasMany(SchoolUser::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getBranches() {
+        return $this->hasMany(Branch::className(), ['id' => 'branch_id'])
+                        ->via('branchLinks');
+    }
+
+    public function getBranchLinks() {
+        return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * @return ActiveQuery
+     */
+    public function getStudentInfo() {
+        return $this->hasOne(StudentInfo::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * 
+     * @return string fullname
+     */
+    public function getFullname() {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
 }

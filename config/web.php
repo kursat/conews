@@ -1,14 +1,15 @@
 <?php
 
 $params = require(__DIR__ . '/params.php');
+$params = require(__DIR__ . '/aliases.php');
 
 $config = [
     'id' => 'basic',
+    'name' => 'Conews',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'components' => [
         'request' => [
-            // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'bWf0DbsKh-r7Z-MedywmpbbFzOBvEpDJ',
         ],
         'cache' => [
@@ -21,12 +22,22 @@ $config = [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
         'mailer' => [
-            'class' => 'yii\swiftmailer\Mailer',
-            // send all mails to a file by default. You have to set
-            // 'useFileTransport' to false and configure a transport
-            // for the mailer to send real emails.
-            'useFileTransport' => true,
+            'class' => 'zyx\phpmailer\Mailer',
+            'viewPath' => '@app/mail',
+            'useFileTransport' => false,
+            'config' => [
+                'mailer' => 'smtp',
+                'smtpsecure' => 'tls',
+                'smtpauth' => true,
+                'host' => 'smtp.gmail.com',
+                'username' => 'conewsmailer@gmail.com',
+                'password' => 'conewsmailer123',
+                'port' => '587',
+            ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -38,14 +49,26 @@ $config = [
             ],
         ],
         'db' => require(__DIR__ . '/db.php'),
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
+        'language' => 'en-US',
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                ],
+            ],
+        ],
+    ],
+    'modules' => [
+        'gridview' => [
+            'class' => '\kartik\grid\Module'
+        ]
     ],
     'params' => $params,
 ];
