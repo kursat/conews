@@ -31,7 +31,7 @@ class PostController extends Controller {
                     [
                         'actions' => ['index', 'create', 'delete'],
                         'allow' => true,
-                        'roles' => [AuthItem::ROLE_CONFIRMED],
+                        'roles' => [AuthItem::ROLE_CONFIRMED]
                     ]
                 ],
             ],
@@ -52,7 +52,7 @@ class PostController extends Controller {
 
         $searchModel = new PostSearch();
         $searchModel->user_id = Yii::$app->user->id;
-        
+
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -78,15 +78,15 @@ class PostController extends Controller {
      * @return mixed
      */
     public function actionCreate() {
-        
-        
+
+
         $formModel = new CreatePostForm();
 
         if (Yii::$app->request->isPost && $formModel->load(Yii::$app->request->post())) {
             $formModel->imageFile = UploadedFile::getInstance($formModel, 'imageFile');
-            
+
             $post = $formModel->save();
-            
+
             if ($post) {
                 return $this->redirect(['view', 'id' => $post->id]);
             }

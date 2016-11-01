@@ -158,8 +158,6 @@ class SeedDatabaseController extends Controller {
         $user->status = User::STATUS_ACTIVE;
 
         if ($user->save()) {
-            $role = Yii::$app->authManager->getRole(AuthItem::ROLE_DEVELOPER);
-            Yii::$app->authManager->assign($role, $user->id);
             $role = Yii::$app->authManager->getRole(AuthItem::ROLE_CONFIRMED);
             Yii::$app->authManager->assign($role, $user->id);
         }

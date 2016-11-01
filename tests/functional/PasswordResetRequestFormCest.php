@@ -1,24 +1,16 @@
 <?php
 
 class PasswordResetRequestFormCest {
-    
-    private $user;
 
     public function _before(FunctionalTester $I) {
-        $this->user = app\models\User::findOne(1);
-        $this->user->generatePasswordResetToken();
-        $this->user->save();
+        $I->amOnRoute('site/request-password-reset');
     }
 
     public function _after(FunctionalTester $I) {
         
     }
 
-    public function submitFormWithEmptyPassword(FunctionalTester $I) {
-        $I->amOnRoute('site/reset-password', [
-            'token' => $this->user->password_reset_token
-        ]);
-        
+    public function submitFormWithEmptyEmail(FunctionalTester $I) {
         $I->submitForm('#request-password-reset-form', []);
         $I->expectTo('see validations errors');
         $I->see('Email cannot be blank.');

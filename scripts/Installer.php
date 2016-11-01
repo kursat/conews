@@ -24,7 +24,7 @@ class Installer extends Controller {
 
     public static function postInstall(Event $event) {
 
-        echo "chmod('web/user_images', 0777)..." . PHP_EOL;
+        echo "Creating web/user_images directory..." . PHP_EOL;
 
         try {
             if (mkdir('web/user_images', '0777', true)) {

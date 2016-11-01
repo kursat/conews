@@ -7,6 +7,6 @@ $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['site/confirm-email', '
 ?>
 Hello,
 
-Follow the link below to to confirm your email and set your new password:
+Follow the link below to confirm your email and set your new password:
 
 <?= $confirmLink ?>

@@ -19,23 +19,14 @@ use yii\db\ActiveRecord;
  * @property integer $updated_at
  *
  * @property AuthAssignment[] $authAssignments
- * @property AuthRule $ruleName
- * @property AuthItemChild[] $authItemChildren
- * @property AuthItemChild[] $authItemChildren0
- * @property AuthItem[] $children
- * @property AuthItem[] $parents
+ * @property User $users
  */
 class AuthItem extends ActiveRecord {
 
     const TYPE_ROLE = 1;
     const TYPE_PERMISSON = 2;
-    const ROLE_DEVELOPER = 'Developer';
     const ROLE_REGISTERED = 'Registered';
     const ROLE_CONFIRMED = 'Confirmed';
-
-    public static function getTypes() {
-        return self::mapConstants(self::className(), 'TYPE');
-    }
 
     /**
      * @inheritdoc
@@ -93,48 +84,13 @@ class AuthItem extends ActiveRecord {
     /**
      * @return ActiveQuery
      */
-    public function getRuleName() {
-        return $this->hasOne(AuthRule::className(), ['name' => 'rule_name']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getAuthItemParent() {
-        return $this->hasMany(AuthItemChild::className(), ['parent' => 'name']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getAuthItemChildren() {
-        return $this->hasMany(AuthItemChild::className(), ['child' => 'name']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getChildren() {
-        return $this->hasMany(AuthItem::className(), ['name' => 'child'])->viaTable('auth_item_child', ['parent' => 'name']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getParents() {
-        return $this->hasMany(AuthItem::className(), ['name' => 'parent'])->viaTable('auth_item_child', ['child' => 'name']);
+    public function getUsers() {
+        return $this->hasMany(User::className(), ['id' => 'user_id'])
+                        ->via('userLinks');
     }
 
     public function getUserLinks() {
         return $this->hasMany(AuthAssignment::className(), ['item_name' => 'name']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getUsers() {
-        return $this->hasMany(User::className(), ['id' => 'user_id'])
-                        ->via('userLinks');
     }
 
     public static function findOneByName($auth_name) {

@@ -45,7 +45,8 @@
             "yii\\composer\\Installer::postCreateProject"
         ],
         "post-install-cmd": [
-            "scripts\\Installer::postInstall"
+            "scripts\\Installer::postInstall",
+            "yii\\composer\\Installer::postCreateProject"
         ],
         "post-update-cmd": [
             "scripts\\Installer::postUpdate"

@@ -1,39 +1,67 @@
 <?php
 
+use app\models\User;
+
 class ResetPasswordFormCest {
 
+    private $user;
+
     public function _before(FunctionalTester $I) {
-        $I->amOnRoute('site/request-password-reset');
+        $this->user = User::findOne(1);
+        $this->user->generatePasswordResetToken();
+        $this->user->save();
     }
 
     public function _after(FunctionalTester $I) {
         
     }
 
-    public function submitFormWithEmptyEmail(FunctionalTester $I) {
-        $I->submitForm('#request-password-reset-form', []);
-        $I->expectTo('see validations errors');
-        $I->see('Email cannot be blank.');
+    public function loadPageWithWrongToken(FunctionalTester $I) {
+        $I->amOnRoute('site/reset-password', [
+            'token' => 'wrong_token'
+        ]);
+        $I->expectTo('see errors');
+        $I->see('Wrong password reset token.');
     }
 
-    public function submitFormWithWrongEmail(FunctionalTester $I) {
-        $I->submitForm('#request-password-reset-form', [
-            'PasswordResetRequestForm[email]' => 'not.an@actual.email',
+    public function submitFormWithEmptyPassword(FunctionalTester $I) {
+        $I->amOnRoute('site/reset-password', [
+            'token' => $this->user->password_reset_token
+        ]);
+
+        $I->submitForm('#reset-password-form', [
+            'ResetPasswordForm[password]' => null
         ]);
         $I->expectTo('see validations errors');
-        $I->see('There is no user with such email.');
+        $I->see('Password cannot be blank.');
+    }
+
+    public function submitFormWithInvalidPassword(FunctionalTester $I) {
+        $I->amOnRoute('site/reset-password', [
+            'token' => $this->user->password_reset_token
+        ]);
+
+        $I->see('Reset password', 'h1');
+
+        $I->submitForm('#reset-password-form', [
+            'ResetPasswordForm[password]' => '1'
+        ]);
+
+        $I->see('Password should contain at least 6 characters.');
     }
 
     public function resetPasswordSuccessfully(FunctionalTester $I) {
-        $I->see('Request password reset', 'h1');
-
-        $I->fillField('PasswordResetRequestForm[email]', 'kursat.yigitoglu@gmail.com');
-        
-        $I->submitForm('#request-password-reset-form', [
-            'PasswordResetRequestForm[email]' => 'kursat.yigitoglu@gmail.com',
+        $I->amOnRoute('site/reset-password', [
+            'token' => $this->user->password_reset_token
         ]);
 
-        $I->see('Check your email for further instructions.');
+        $I->see('Reset password', 'h1');
+
+        $I->submitForm('#reset-password-form', [
+            'ResetPasswordForm[password]' => '123456'
+        ]);
+
+        $I->see('New password was saved. ');
     }
 
 }
