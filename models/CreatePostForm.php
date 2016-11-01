@@ -22,6 +22,7 @@ class CreatePostForm extends Model {
     public function rules() {
         return [
             [['content'], 'string'],
+            [['title', 'content'], 'required'],
             [['title', 'image'], 'string', 'max' => 255],
             [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
         ];
@@ -29,7 +30,7 @@ class CreatePostForm extends Model {
 
     public function save() {
         if ($this->validate()) {
-            $this->image = time() . '.' . $this->imageFile->extension;
+            $this->image = uniqid('image_') . '.' . $this->imageFile->extension;
             $this->imageFile->saveAs('user_images/' . $this->image);
 
             $post = new Post();

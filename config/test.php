@@ -1,4 +1,5 @@
 <?php
+
 $params = require(__DIR__ . '/params.php');
 $dbParams = require(__DIR__ . '/test_db.php');
 
@@ -7,7 +8,8 @@ $dbParams = require(__DIR__ . '/test_db.php');
  */
 return [
     'id' => 'basic-tests',
-    'basePath' => dirname(__DIR__),    
+    'basePath' => dirname(__DIR__),
+    'name' => 'Conews',
     'language' => 'en-US',
     'components' => [
         'db' => $dbParams,
@@ -19,17 +21,28 @@ return [
         ],
         'user' => [
             'identityClass' => 'app\models\User',
-        ],        
+        ],
+        'i18n' => [
+            'translations' => [
+                '*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    'basePath' => '@app/messages',
+                ],
+            ],
+        ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+        ],
         'request' => [
             'cookieValidationKey' => 'test',
             'enableCsrfValidation' => false,
-            // but if you absolutely need it set cookie domain to localhost
-            /*
-            'csrfCookie' => [
-                'domain' => 'localhost',
-            ],
-            */
-        ],        
+        // but if you absolutely need it set cookie domain to localhost
+        /*
+          'csrfCookie' => [
+          'domain' => 'localhost',
+          ],
+         */
+        ],
     ],
     'params' => $params,
 ];

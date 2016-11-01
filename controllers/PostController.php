@@ -2,11 +2,13 @@
 
 namespace app\controllers;
 
+use app\models\AuthItem;
 use app\models\CreatePostForm;
 use app\models\Post;
 use app\models\PostSearch;
 use kartik\mpdf\Pdf;
 use Yii;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -22,6 +24,17 @@ class PostController extends Controller {
      */
     public function behaviors() {
         return [
+            'access' => [
+                'class' => AccessControl::className(),
+                'only' => ['index', 'create', 'delete'],
+                'rules' => [
+                    [
+                        'actions' => ['index', 'create', 'delete'],
+                        'allow' => true,
+                        'roles' => [AuthItem::ROLE_CONFIRMED],
+                    ]
+                ],
+            ],
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [

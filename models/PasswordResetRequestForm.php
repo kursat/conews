@@ -21,6 +21,7 @@ class PasswordResetRequestForm extends Model {
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
+            ['email', 'string', 'max' => 254],
             ['email', 'exist',
                 'targetClass' => '\app\models\User',
                 'filter' => ['status' => User::STATUS_ACTIVE],
@@ -35,6 +36,11 @@ class PasswordResetRequestForm extends Model {
      * @return boolean whether the email was send
      */
     public function sendEmail() {
+        
+        if (!$this->validate()) {
+            return false;
+        }
+        
         /* @var $user User */
         $user = User::findOne([
                     'status' => User::STATUS_ACTIVE,
@@ -58,9 +64,9 @@ class PasswordResetRequestForm extends Model {
                         ->compose(
                                 ['html' => 'passwordResetToken-html', 'text' => 'passwordResetToken-text'], ['user' => $user]
                         )
-                        ->setFrom([\Yii::$app->params['adminEmail'] => \Yii::$app->name])
+                        ->setFrom([Yii::$app->params['adminEmail'] => Yii::$app->name])
                         ->setTo($this->email)
-                        ->setSubject('Password reset for ' . \Yii::$app->name)
+                        ->setSubject('Password reset for ' . Yii::$app->name)
                         ->send();
     }
 

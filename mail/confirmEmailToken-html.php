@@ -9,7 +9,7 @@ $confirmLink = Yii::$app->urlManager->createAbsoluteUrl(['site/confirm-email', '
 <div class="password-reset">
     <p>Hello,</p>
 
-    <p>Follow the link below to to confirm your email:</p>
+    <p>Follow the link below to to confirm your email and set your new password:</p>
 
     <p><?= Html::a(Html::encode($confirmLink), $confirmLink) ?></p>
 </div>

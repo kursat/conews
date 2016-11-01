@@ -56,9 +56,12 @@ class User extends ActiveRecord implements IdentityInterface {
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_PASSIVE]],
             [['auth_key', 'password_hash', 'email'], 'required'],
             [['status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['password_hash', 'password_reset_token', 'email', 'firstname', 'lastname'], 'string', 'max' => 255],
+            [['password_hash', 'password_reset_token', 'firstname', 'lastname'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
+            [['email'], 'string', 'min' => 5, 'max' => 254],
             [['email'], 'unique'],
+            [['email'], 'email'],
+            [['email'], 'trim'],
             [['password_reset_token'], 'unique'],
         ];
     }
@@ -96,7 +99,7 @@ class User extends ActiveRecord implements IdentityInterface {
      * @inheritdoc
      */
     public static function findIdentityByAccessToken($token, $type = null) {
-        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+        return static::findOne(['auth_key' => $token, 'status' => self::STATUS_ACTIVE]);
     }
 
     /**
@@ -203,19 +206,6 @@ class User extends ActiveRecord implements IdentityInterface {
         $this->password_reset_token = null;
     }
 
-    public function getProfileImage() {
-
-        $default = "http://claimmyrun.com/static/img/default-avatar-160.png";
-        $size = 160;
-
-        $gravatar_image_url = "http://www.gravatar.com/avatar/" .
-                md5(strtolower(trim($this->email))) .
-                "?d=" . urlencode($default) .
-                "&s=" . $size;
-
-        return $gravatar_image_url;
-    }
-
     /**
      * @return ActiveQuery
      */
@@ -229,54 +219,16 @@ class User extends ActiveRecord implements IdentityInterface {
     }
 
     /**
-     * @return ActiveQuery
-     */
-    public function getClassrooms() {
-        return $this->hasMany(Classroom::className(), ['id' => 'classroom_id'])
-                        ->via('classroomLinks');
-    }
-
-    public function getClassroomLinks() {
-        return $this->hasMany(ClassroomUser::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getSchools() {
-        return $this->hasMany(School::className(), ['id' => 'school_id'])
-                        ->via('schoolLinks');
-    }
-
-    public function getSchoolLinks() {
-        return $this->hasMany(SchoolUser::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getBranches() {
-        return $this->hasMany(Branch::className(), ['id' => 'branch_id'])
-                        ->via('branchLinks');
-    }
-
-    public function getBranchLinks() {
-        return $this->hasMany(BranchUser::className(), ['user_id' => 'id']);
-    }
-
-    /**
-     * @return ActiveQuery
-     */
-    public function getStudentInfo() {
-        return $this->hasOne(StudentInfo::className(), ['user_id' => 'id']);
-    }
-
-    /**
      * 
      * @return string fullname
      */
     public function getFullname() {
-        return $this->firstname . ' ' . $this->lastname;
+        $parts = [$this->firstname, $this->lastname];
+        foreach ($parts as $key => $value) {
+            if (!$value)
+                unset($parts[$key]);
+        }
+        return join(' ', $parts);
     }
 
 }

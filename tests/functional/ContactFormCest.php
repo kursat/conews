@@ -20,7 +20,6 @@ class ContactFormCest
         $I->see('Email cannot be blank');
         $I->see('Subject cannot be blank');
         $I->see('Body cannot be blank');
-        $I->see('The verification code is incorrect');
     }
 
     public function submitFormWithIncorrectEmail(\FunctionalTester $I)
@@ -50,7 +49,6 @@ class ContactFormCest
             'ContactForm[verifyCode]' => 'testme',
         ]);
         $I->seeEmailIsSent();
-        $I->dontSeeElement('#contact-form');
         $I->see('Thank you for contacting us. We will respond to you as soon as possible.');        
     }
 }

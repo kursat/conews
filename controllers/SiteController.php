@@ -2,12 +2,11 @@
 
 namespace app\controllers;
 
-use app\models\AuthItem;
 use app\models\ContactForm;
 use app\models\LoginForm;
+use app\models\PasswordResetRequestForm;
 use app\models\Post;
 use app\models\RegisterForm;
-use app\models\PasswordResetRequestForm;
 use app\models\ResetPasswordForm;
 use app\models\SignupForm;
 use Yii;
@@ -16,8 +15,6 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\web\User;
 use const YII_ENV_TEST;
 
 
@@ -122,7 +119,7 @@ class SiteController extends Controller {
     public function actionContact() {
         $model = new ContactForm();
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            if ($model->sendEmail(Yii::$app->params['adminEmail'])) {
+            if ($model->contact(Yii::$app->params['supportEmail'])) {
                 Yii::$app->session->setFlash('success', 'Thank you for contacting us. We will respond to you as soon as possible.');
             } else {
                 Yii::$app->session->setFlash('error', 'There was an error sending email.');
@@ -175,11 +172,6 @@ class SiteController extends Controller {
         $model = new RegisterForm();
         if ($model->load(Yii::$app->request->post())) {
             if ($user = $model->register()) {
-                if ($model->sendEmail()) {
-                    Yii::$app->session->setFlash('success', 'An email sent to your email address. Check your email for further instructions.');
-                } else {
-                    Yii::$app->session->setFlash('error', 'There was an error sending email.');
-                }
                 return $this->goHome();
             }
         }

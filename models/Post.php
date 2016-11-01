@@ -51,10 +51,13 @@ class Post extends ActiveRecord {
      */
     public function rules() {
         return [
+            ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_PASSIVE]],
+            [['title', 'image', 'content', 'user_id'], 'required'],
             [['user_id', 'status', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['content'], 'string'],
             [['title', 'image'], 'string', 'max' => 255],
-            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => false, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 

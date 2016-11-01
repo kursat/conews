@@ -94,11 +94,11 @@ class SeedDatabaseController extends Controller {
             $post->content = $faker->text(rand(1000, 1500));
             $post->image = $faker->image(Yii::getAlias('@user_images'), 480, 320, null, false);
             $post->status = Post::STATUS_ACTIVE;
-
+            
+            $random_key = array_rand($users);
+            $post->link('user', $users[$random_key]);
+            
             if ($post->save()) {
-                $random_key = array_rand($users);
-                $post->link('user', $users[$random_key]);
-
                 echo $post->title . ': post has been created.' . PHP_EOL;
             } else {
                 echo json_encode($post->getErrors()) . PHP_EOL;
@@ -159,6 +159,8 @@ class SeedDatabaseController extends Controller {
 
         if ($user->save()) {
             $role = Yii::$app->authManager->getRole(AuthItem::ROLE_DEVELOPER);
+            Yii::$app->authManager->assign($role, $user->id);
+            $role = Yii::$app->authManager->getRole(AuthItem::ROLE_CONFIRMED);
             Yii::$app->authManager->assign($role, $user->id);
         }
     }

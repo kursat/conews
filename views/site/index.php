@@ -1,11 +1,13 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\StringHelper;
+use yii\helpers\Url;
 use yii\web\View;
 
 /* @var $this View */
 
-$this->title = 'My Yii Application';
+$this->title = Yii::$app->name;
 ?>
 <div class="site-index">
 
@@ -14,7 +16,7 @@ $this->title = 'My Yii Application';
 
         <p class="lead"><?= Yii::t('app', 'Conews is a news portal where you can report or read news.') ?></p>
 
-        <p><a class="btn btn-lg btn-success" href="/site/signup">Get started with Conews!</a></p>
+        <p><a class="btn btn-lg btn-success" href="<?= Url::toRoute('site/register')?>">Get started with Conews!</a></p>
     </div>
 
     <div class="body-content">
@@ -32,15 +34,21 @@ $this->title = 'My Yii Application';
                     <div class="row">
                 <?php } ?>
             
-                <div class="col-lg-4">
-                    <h2><?= $post->title ?></h2>
+                <div class="col-sm-6 col-md-4">
+                    <div class="thumbnail">
+                        <img src="/user_images/<?= $post->image ?>">
+                        <div class="caption">
+                            <h3><?= $post->title ?></h3>
+                            <p><?= StringHelper::truncateWords($post->content, 50) ?></p>
+                            <p>
+                                <?= Html::a(Yii::t('app', 'More &raquo;'), ['post/view', 'id' => $post->id], ['class' => 'btn btn-default']) ?>
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">Published <?= Yii::$app->formatter->asDuration(time() - $post->created_at) ?> ago</small>
+                            </p>
 
-                    <p><?= $post->image ?></p>
-                    <p><?= yii\helpers\StringHelper::truncateWords($post->content, 50) ?></p>
-
-                    <p>
-                        <?= Html::a(Yii::t('app', 'More &raquo;'), ['post/view', 'id' => $post->id], ['class' => 'btn btn-default']) ?>
-                    </p>
+                        </div>
+                    </div>
                 </div>
             <?php } ?>
         </div>

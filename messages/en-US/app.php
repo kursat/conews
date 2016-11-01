@@ -28,9 +28,7 @@ return [
     'ID' => '',
     'Image' => '',
     'Latest 10 News' => '',
-    'Link: {url}/confirm-email/{auth_key}' => '',
     'More &raquo;' => '',
-    'Please confirm your email address' => '',
     'Posts' => '',
     'Register' => '',
     'Reset' => '',
@@ -44,5 +42,7 @@ return [
     'User ID' => '',
     'View Pdf' => '',
     'Welcome to Conews!' => '',
-    'conewsmailer@gmail.com' => '',
+    'Link: {url}/confirm-email/{auth_key}' => '@@@@',
+    'Please confirm your email address' => '@@@@',
+    'conewsmailer@gmail.com' => '@@@@',
 ];

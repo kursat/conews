@@ -36,8 +36,7 @@ AppAsset::register($this);
         ],
     ]);
     $menuItems = [
-        ['label' => 'Home', 'url' => ['/site/index']],
-        ['label' => 'About', 'url' => ['/site/about']],
+        ['label' => 'Newsstand', 'url' => ['/']],
         ['label' => 'RSS', 'url' => ['/rss']],
         ['label' => 'Contact', 'url' => ['/site/contact']],
     ];
@@ -46,10 +45,9 @@ AppAsset::register($this);
             'label' => 'Register',
             'url' => ['/site/register'],
         ];
-
         $menuItems[] = ['label' => 'Login', 'url' => ['/site/login']];
     } else {
-        $menuItems[] = ['label' => 'My Posts', 'url' => ['/post']];
+        $menuItems[] = ['label' => 'Publish', 'url' => ['/post']];
         $menuItems[] = '<li>'
             . Html::beginForm(['/site/logout'], 'post')
             . Html::submitButton(
