@@ -27,9 +27,6 @@ class SeedDatabaseController extends Controller {
         echo "\033[36mCreating roles...\033[0m" . PHP_EOL;
         $this->createRoles();
 
-        echo "\033[36mCreating admin users...\033[0m" . PHP_EOL;
-        $this->createAdminUsers();
-
         echo "\033[36mCreating random users...\033[0m" . PHP_EOL;
         $this->createUsers();
 

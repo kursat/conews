@@ -88,7 +88,7 @@ class PostController extends Controller {
             $post = $formModel->save();
 
             if ($post) {
-                return $this->redirect(['view', 'id' => $post->id]);
+                return $this->redirect(['index']);
             }
         }
 

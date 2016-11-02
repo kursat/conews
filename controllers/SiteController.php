@@ -134,35 +134,6 @@ class SiteController extends Controller {
     }
 
     /**
-     * Displays about page.
-     *
-     * @return mixed
-     */
-    public function actionAbout() {
-        return $this->render('about');
-    }
-
-    /**
-     * Signs user up.
-     *
-     * @return mixed
-     */
-    public function actionSignup() {
-        $model = new SignupForm();
-        if ($model->load(Yii::$app->request->post())) {
-            if ($user = $model->signup()) {
-                if (Yii::$app->getUser()->login($user)) {
-                    return $this->goHome();
-                }
-            }
-        }
-
-        return $this->render('signup', [
-                    'model' => $model,
-        ]);
-    }
-
-    /**
      * 
      * Registers new user.
      *
@@ -245,20 +216,6 @@ class SiteController extends Controller {
         return $this->render('resetPassword', [
                     'model' => $model,
         ]);
-
-//        $user = User::find()->where('auth_key=:auth_key', ['auth_key' => $token])->one();
-//
-//        if (!$user)
-//            throw new NotFoundHttpException();
-//
-//        Yii::$app->authManager->revokeAll($user->id);
-//        $role = Yii::$app->authManager->getRole(AuthItem::ROLE_CONFIRMED);
-//        Yii::$app->authManager->assign($role, $user->id);
-//
-//        $user->generateAuthKey();
-//        $user->save();
-//
-//        $this->redirect(Yii::$app->homeUrl);
     }
 
 }

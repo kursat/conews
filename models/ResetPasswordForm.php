@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Yii;
 use yii\base\InvalidParamException;
 use yii\base\Model;
 
@@ -58,6 +59,12 @@ class ResetPasswordForm extends Model {
         $user = $this->_user;
         $user->setPassword($this->password);
         $user->removePasswordResetToken();
+		
+		Yii::$app->authManager->revokeAll($user->id);
+		$role = Yii::$app->authManager->getRole(AuthItem::ROLE_CONFIRMED);
+		Yii::$app->authManager->assign($role, $user->id);
+		
+		Yii::$app->user->login($user, 0);
 
         return $user->save(false);
     }

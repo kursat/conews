@@ -15,7 +15,7 @@ class RssController extends Controller {
 
     public function actionIndex() {
         $dataProvider = new ActiveDataProvider([
-            'query' => Post::find()->with(['user']),
+            'query' => Post::find()->with(['user'])->orderBy('id DESC'),
             'pagination' => [
                 'pageSize' => 10
             ],
