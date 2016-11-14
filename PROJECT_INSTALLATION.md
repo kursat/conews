@@ -15,6 +15,7 @@ Project uses 2 databases: `conews.sql` for production, `conews_test.sql` for tes
  - To reset database run the following command: `php yii migrate/down 3 && php yii migrate && php yii seed-database`
  - Database imformation stored in `config/db.php` and `config/test_db.php` files.
  - Default database information for production:
+ 
     ```php
     	return [
     	    'class' => 'yii\db\Connection',
@@ -24,7 +25,9 @@ Project uses 2 databases: `conews.sql` for production, `conews_test.sql` for tes
     	    'charset' => 'utf8',
     	];
     ```
+    
  - Default database information for testing:
+ 
     ```php
     	return [
     	    'class' => 'yii\db\Connection',
