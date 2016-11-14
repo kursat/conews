@@ -105,13 +105,14 @@ Preperation of Project
 	sudo chmod 755 yii
 ```
 - To run tests:
-```bash
+
+    ```bash
        # run all available tests
        composer exec codecept run
     
        # run only unit tests
        composer exec codecept run unit
-```
+    ```
 
 Assumptions / Requirements
 -------------------
